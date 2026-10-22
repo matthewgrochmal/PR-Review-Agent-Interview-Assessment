@@ -1,4 +1,4 @@
-# Ticket: Automated PR review agent (prototype)
+# Ticket: Automated PR review agent
 
 Our team reviews every pull request against a short checklist (`checklist.md`). Reviewers spend a lot of time on the mechanical part of that, and they still miss things.
 
