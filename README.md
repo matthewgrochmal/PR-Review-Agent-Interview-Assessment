@@ -65,7 +65,7 @@ Put the one command that runs your agent at the top of a `RUN.md` file.
 * Clone this repo or download it as a zip. **Please don't fork it or use it as a template.** Forks are public, so other candidates could see your work.
 * Use any language, framework, AI tools, and LLM provider. You're expected to use AI tools to build this.
 * Searching the web and reading documentation is fine.
-* Ask us questions at any time. Thinking out loud helps us follow your reasoning.
-* We'll hand you something new a couple of times during the build, the way requirements change on a real ticket.
-* You have about 40 minutes. A working agent that you understand beats an ambitious one that doesn't run.
-* At the end, you'll send us your `results.json` and a zip of this whole folder.
+* Ask questions at any time. Thinking out loud helps me follow your reasoning.
+* We'll hand you something new a couple of times during the build, the way requirements change in the real world.
+* You have about 40 minutes. A working agent that you understand beats an ambitious one that doesn't run.  We'll cut things off at/around this time regardless.
+* At the end, you'll send me your `results.json` and a zip of this whole folder.
