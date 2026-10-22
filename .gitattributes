@@ -1,0 +1,2 @@
+# Keep diffs byte-for-byte identical on every platform.
+*.diff -text

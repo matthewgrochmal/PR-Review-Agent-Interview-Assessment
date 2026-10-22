@@ -1,0 +1,58 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dev Example <dev@example.com>
+Date: Tue, 15 Sep 2026 10:00:00 +0000
+Subject: [PATCH] Normalize payer codes before comparison
+
+Payer codes arrive with mixed case and stray whitespace from some clearinghouses, so ' bcx' and 'BCX' were treated as different payers.
+---
+ src/Contoso.Claims/Services/PayerMatcher.cs     | 12 ++++++++++--
+ tests/Contoso.Claims.Tests/PayerMatcherTests.cs | 17 +++++++++++++++++
+ 2 files changed, 27 insertions(+), 2 deletions(-)
+ create mode 100644 tests/Contoso.Claims.Tests/PayerMatcherTests.cs
+
+diff --git a/src/Contoso.Claims/Services/PayerMatcher.cs b/src/Contoso.Claims/Services/PayerMatcher.cs
+index 1dc2b15..ba57cbb 100644
+--- a/src/Contoso.Claims/Services/PayerMatcher.cs
++++ b/src/Contoso.Claims/Services/PayerMatcher.cs
+@@ -2,8 +2,16 @@ namespace Contoso.Claims.Services;
+ 
+ public static class PayerMatcher
+ {
+-    public static bool IsSamePayer(string left, string right)
++    public static bool IsSamePayer(string? left, string? right)
+     {
+-        return left == right;
++        if (left is null || right is null)
++        {
++            return false;
++        }
++
++        return string.Equals(Normalize(left), Normalize(right), StringComparison.Ordinal);
+     }
++
++    private static string Normalize(string payerCode) =>
++        payerCode.Trim().ToUpperInvariant();
+ }
+diff --git a/tests/Contoso.Claims.Tests/PayerMatcherTests.cs b/tests/Contoso.Claims.Tests/PayerMatcherTests.cs
+new file mode 100644
+index 0000000..ff32fca
+--- /dev/null
++++ b/tests/Contoso.Claims.Tests/PayerMatcherTests.cs
+@@ -0,0 +1,17 @@
++using Contoso.Claims.Services;
++using Xunit;
++
++namespace Contoso.Claims.Tests;
++
++public sealed class PayerMatcherTests
++{
++    [Theory]
++    [InlineData("BCX", "BCX", true)]
++    [InlineData(" bcx", "BCX", true)]
++    [InlineData("MCR", "MCD", false)]
++    [InlineData(null, "BCX", false)]
++    public void IsSamePayer_NormalizesBeforeComparing(string? left, string? right, bool expected)
++    {
++        Assert.Equal(expected, PayerMatcher.IsSamePayer(left, right));
++    }
++}

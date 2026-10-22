@@ -1,0 +1,70 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dev Example <dev@example.com>
+Date: Tue, 15 Sep 2026 10:00:00 +0000
+Subject: [PATCH] Add claim lookup by patient last name
+
+Analysts need to search claims by patient last name from the work queue.
+Also adds an open claim count for the dashboard tile.
+---
+ src/Contoso.Claims/Data/ClaimRepository.cs    | 23 +++++++++++++++++++
+ .../ClaimRepositoryTests.cs                   | 17 ++++++++++++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/src/Contoso.Claims/Data/ClaimRepository.cs b/src/Contoso.Claims/Data/ClaimRepository.cs
+index 659fa3c..8e7d86a 100644
+--- a/src/Contoso.Claims/Data/ClaimRepository.cs
++++ b/src/Contoso.Claims/Data/ClaimRepository.cs
+@@ -20,4 +20,27 @@ public sealed class ClaimRepository
+             "SELECT * FROM dbo.Claim WHERE ClaimId = @ClaimId",
+             new { ClaimId = claimId });
+     }
++
++    public async Task<IReadOnlyList<Claim>> SearchByPatientLastNameAsync(string lastName)
++    {
++        await using var connection = new SqlConnection(_connectionString);
++        var sql = $"SELECT * FROM dbo.Claim WHERE PatientLastName = '{lastName}'";
++        var results = await connection.QueryAsync<Claim>(sql);
++        return results.ToList();
++    }
++
++    public async Task<int> CountOpenClaimsAsync()
++    {
++        try
++        {
++            await using var connection = new SqlConnection(_connectionString);
++            return await connection.ExecuteScalarAsync<int>(
++                "SELECT COUNT(*) FROM dbo.Claim WHERE Status = 'Open'");
++        }
++        catch
++        {
++        }
++
++        return 0;
++    }
+ }
+diff --git a/tests/Contoso.Claims.Tests/ClaimRepositoryTests.cs b/tests/Contoso.Claims.Tests/ClaimRepositoryTests.cs
+index 3845af6..746e877 100644
+--- a/tests/Contoso.Claims.Tests/ClaimRepositoryTests.cs
++++ b/tests/Contoso.Claims.Tests/ClaimRepositoryTests.cs
+@@ -21,4 +21,21 @@ public sealed class ClaimRepositoryTests
+         Assert.NotNull(claim);
+         Assert.Equal(1001, claim.ClaimId);
+     }
++
++    [Fact]
++    public async Task SearchByPatientLastName_ReturnsMatchingClaims()
++    {
++        var results = await _repository.SearchByPatientLastNameAsync("Testperson");
++
++        Assert.NotEmpty(results);
++        Assert.All(results, c => Assert.Equal("Testperson", c.PatientLastName));
++    }
++
++    [Fact]
++    public async Task CountOpenClaims_ReturnsSeededCount()
++    {
++        var count = await _repository.CountOpenClaimsAsync();
++
++        Assert.Equal(3, count);
++    }
+ }

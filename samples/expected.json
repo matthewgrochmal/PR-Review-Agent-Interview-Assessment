@@ -1,0 +1,27 @@
+{
+  "reviews": [
+    {
+      "diff": "pr-0901.diff",
+      "verdict": "request_changes",
+      "findings": [
+        {
+          "rule": "R2",
+          "file": "src/Contoso.Claims/Data/ClaimRepository.cs",
+          "line": 27,
+          "comment": "lastName is interpolated straight into the SQL text. Pass it as a parameter: WHERE PatientLastName = @LastName with new { LastName = lastName }."
+        },
+        {
+          "rule": "R5",
+          "file": "src/Contoso.Claims/Data/ClaimRepository.cs",
+          "line": 40,
+          "comment": "Empty catch hides every failure, including a dead database, and reports 0 open claims. Log at Warning or above, or let the exception propagate."
+        }
+      ]
+    },
+    {
+      "diff": "pr-0902.diff",
+      "verdict": "approve",
+      "findings": []
+    }
+  ]
+}
